@@ -28,6 +28,9 @@ export default class HistoryUpdateManager extends UpdateManagerBase<DHistory>{
         }, new Map<string, DHistory[]>() )
     }
 
+    /** 履歴ごとの差分を記録 */
+    private histUpdateDiffMap: Map<string, number> = new Map<string, number>()
+
     /**
      * 更新対象となる履歴を読み込む
      * 対象としている仕訳分の履歴がない場合は追加してから読み込む
@@ -95,14 +98,18 @@ export default class HistoryUpdateManager extends UpdateManagerBase<DHistory>{
                 if(!this.historyMap.has(itemId)){
                     continue
                 }
-                const histories = this.historyMap.get(itemId)!
-                for(const hist of histories){
+                const histroies = this.historyMap.get(itemId)!
+                for(const hist of histroies){
                     // 自分よりも前の履歴に更新を入れない
                     if(hist.date < journal.accountAt){
                         continue
                     }
                     const diff = (acc ? 1 : -1) * dtl.amount
                     hist.amount += diff
+                    this.histUpdateDiffMap.set(
+                        hist.id,
+                        (this.histUpdateDiffMap.has(hist.id) ? this.histUpdateDiffMap.get(hist.id)! : 0) + diff
+                    )
                     // 当日なら差分も更新する
                     if(hist.date === journal.accountAt){
                         hist.diff += diff
@@ -118,7 +125,10 @@ export default class HistoryUpdateManager extends UpdateManagerBase<DHistory>{
      * 保持する履歴をすべて確定させる
      */
     protected async commit() {
-        await Promise.all(this.targets.map(hist => container.resolve(HistoryFirestore).update(hist.id, hist)))
+        // 差分があったものに絞る（変動のない履歴を更新するのは無駄）
+        const updates = this.targets.filter(hist => this.histUpdateDiffMap.has(hist.id) && this.histUpdateDiffMap.get(hist.id)! !== 0)
+        // console.log(`HISTORY commit   target=${this.targets.length}  updates=${updates.length}`)
+        await Promise.all(updates.map(hist => container.resolve(HistoryFirestore).update(hist.id, hist)))
     }
 
     /**
