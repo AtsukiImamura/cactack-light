@@ -1,0 +1,116 @@
+{
+  "name": "cactack-light",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production webpack",
+    "build:test": "cross-env NODE_ENV=test webpack",
+    "build:dev": "cross-env NODE_ENV=development webpack ",
+    "build:functions": "tsc -p ./functions && npm --prefix functions run prepare",
+    "start": "node dist/server.js",
+    "watch": "cross-env NODE_ENV=production webpack --watch",
+    "watch:test": "cross-env NODE_ENV=test webpack --watch",
+    "watch:dev": "cross-env NODE_ENV=development webpack --watch",
+    "watch:functions": "cross-env NODE_ENV=functions webpack --watch",
+    "test": "mocha --timeout 25000",
+    "test:journal": "jest journal",
+    "test:category": "jest category",
+    "test:coverage": "jest --coverage",
+    "test:local": "node ./dist/test.js",
+    "sass:build": "node-sass ./src/resources/sass/ -r -o ./dist/ --output-style compressed",
+    "deploy": "node prepare-build.js && npm run build && npm run build:functions && firebase deploy",
+    "deploy:app": "npm run build && firebase deploy --only hosting",
+    "deploy:functions": "npm --prefix functions run build && npm --prefix functions run prepare && firebase deploy --only functions",
+    "deploy:functions:onJournalCreated": "npm --prefix functions run build && npm --prefix functions run prepare && firebase deploy --only functions:onJournalCreated",
+    "deploy:functions:onJournalUpdated": "npm --prefix functions run build && npm --prefix functions run prepare && firebase deploy --only functions:onJournalUpdated"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.json"
+      }
+    },
+    "testMatch": [
+      "**/__tests__/*.spec.+(ts|tsx|js)"
+    ],
+    "moduleNameMapper": {
+      "^@/(.+)": "<rootDir>/src/$1",
+      "^config$": "<rootDir>/src/env/web.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AtsukiImamura/MunSe-ilsHomePageMaker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AtsukiImamura/MunSe-ilsHomePageMaker/issues"
+  },
+  "homepage": "https://github.com/AtsukiImamura/MunSe-ilsHomePageMaker#readme",
+  "dependencies": {
+    "chart.js": "^2.9.3",
+    "color": "^3.1.2",
+    "color-convert": "^2.0.1",
+    "cross-env": "^7.0.2",
+    "dayjs": "^1.8.34",
+    "firebase-admin": "^9.5.0",
+    "firebase-functions": "^3.13.2",
+    "intro.js": "^2.9.3",
+    "object-hash": "^2.0.3",
+    "reflect-metadata": "^0.1.13",
+    "tsyringe": "^4.3.0",
+    "vue": "^2.6.12",
+    "vue-chartjs": "^3.5.1",
+    "vue-introjs": "^1.3.2",
+    "vue-masonry": "^0.11.8",
+    "vue-month-picker": "^1.3.0",
+    "vue-paginate": "^3.6.0",
+    "vuedraggable": "^2.24.1",
+    "vuejs-datepicker": "^1.6.2"
+  },
+  "devDependencies": {
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@types/axios": "^0.14.0",
+    "@types/chart.js": "^2.9.31",
+    "@types/color": "^3.0.1",
+    "@types/color-convert": "^2.0.0",
+    "@types/jest": "^25.2.3",
+    "@types/node": "^13.13.45",
+    "@types/object-hash": "^1.3.4",
+    "@types/vuedraggable": "^2.23.2",
+    "axios": "^0.21.1",
+    "cli-progress": "^3.9.0",
+    "css-loader": "^2.1.1",
+    "firebase": "^7.19.1",
+    "jest": "^25.5.4",
+    "mocha": "^8.3.1",
+    "node-sass": "^4.14.1",
+    "sass-loader": "^7.2.0",
+    "sass-resources-loader": "^2.1.0",
+    "style-loader": "^0.23.1",
+    "ts-jest": "^25.5.1",
+    "ts-loader": "^6.2.2",
+    "tslint": "^5.18.0",
+    "tslint-loader": "^3.5.4",
+    "typescript": "^3.9.9",
+    "vue-loader": "^15.9.3",
+    "vue-property-decorator": "^8.5.1",
+    "vue-router": "^3.5.1",
+    "vue-template-compiler": "^2.6.12",
+    "vuex": "^3.6.2",
+    "vuex-module-decorators": "^0.10.1",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  }
+}

@@ -1,0 +1,63 @@
+// @mixin xl {
+//   @media screen and (min-width: 1180px) {
+//     @content;
+//   }
+// }
+@mixin lg {
+  @media screen and (max-width: 1180px) {
+    @content;
+  }
+}
+@mixin md {
+  @media screen and (max-width: 960px) {
+    @content;
+  }
+}
+
+@mixin sm {
+  @media screen and (max-width: 768px) {
+    @content;
+  }
+}
+@mixin xs {
+  @media screen and (max-width: 540px) {
+    @content;
+  }
+}
+
+@mixin responsive-width($lg, $md, $sm, $xs) {
+  @include lg {
+    width: $lg;
+  }
+  @include md {
+    width: $md;
+  }
+  @include sm {
+    width: $sm;
+  }
+  @include xs {
+    width: $xs;
+  }
+}
+
+$color-main: #ffc400;
+$color-main-light: #ffd23c;
+$color-main-skeleton: #fff4d2;
+
+$color-cash: #ffbb00;
+$color-cash-equivalent: #e01a95;
+$color-debt: #6e00a1;
+$color-receivable: #00a531;
+$color-net-asset: #37b9ca;
+$color-stock: #2000ad;
+$color-deposit: #a0f8d3;
+$color-durable-asset: #b15e00;
+$color-unknown: #c8c8c8;
+
+$color-spending: #001692;
+// $color-spending: #001ec5;
+$color-asset: #ffbb00;
+$color-income: #ee0000;
+$color-other: #656565;
+
+$color-complete: rgb(6, 173, 0);

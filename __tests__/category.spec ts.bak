@@ -1,0 +1,155 @@
+// import * as admin from "firebase-admin";
+// import * as fs from "fs";
+
+// let user: admin.auth.UserRecord | null = null
+// const categoryItems: {id: string, name: string, userId: string}[] = []
+// let app: admin.app.App | null = null;
+
+// // これ入れないと非同期のところで怒られる
+// jest.useFakeTimers().setTimeout(30000);
+// // const sleep = (msec: number) => new Promise(resolve => setTimeout(resolve, msec));
+
+// beforeAll(async () => {
+//   const credential = fs.readFileSync(
+//     __dirname + "\\..\\credentials\\cactack-light-firestore-credential.json"
+//   ).toString()
+//   app = admin.initializeApp({
+//       credential: admin.credential.cert(JSON.parse(credential)),
+//       databaseURL: "https://cactack-26e4c.firebaseio.com",
+//       projectId: "cactack-light"
+//   });
+
+//   user = await admin.auth().createUser({})
+
+//   for(let itemCnt = 0; itemCnt < 20; itemCnt ++){
+//     const item = {
+//       id: "",
+//       name: `test-item-${itemCnt + 1}`,
+//       userId: user!.uid
+//     }
+//     await app!.firestore().collection("userCategoryItem")
+//       .add(item).then(doc => {
+//         item.id = doc.id
+//         categoryItems.push(item)
+//       })
+//   }
+// });
+
+
+// afterAll(async () => {
+//      for(const cName of ["userCategoryItem", "history", "journals"]){
+//     await Promise.all(
+//       (await app!.firestore().collection(cName).where("userId", "==", user!.uid).get())
+//       .docs.map(
+//         doc => app!.firestore().collection(cName).doc(doc.id).delete()
+//       )
+//      )
+//    }
+// })
+
+// describe("確認", () => {
+//   test("A", done => {
+//     app!.firestore().collection("history")
+//     .where("userId", "==", "XL1HusHapiWNUzPJszCubW4xdBP2")
+//     // .where("itemId", "==", "1BFFh6PqWuvAzcGgGLfu")
+//     .get().then(res => {
+//       const histories = res.docs.map(doc => doc.data())
+//       console.log(histories.length)
+//       expect(histories.length).toBeGreaterThan(0)
+//       done()
+//     })
+//   })
+// })
+
+// // describe("作成時の挙動テスト", () => {
+// //   test("仕訳作成時に履歴が作成されること", async () => {
+
+// //       const item1 = categoryItems[0]
+// //       const item2 = categoryItems[1]
+
+// //       console.log(" -> check1")
+// //       await app!.firestore().collection("journals")
+// //         .add({
+// //           accountAt: "2020/12/01",
+// //           credits: [{
+// //             categoryItemId: item1.id,
+// //             amount: 200
+// //           }],
+// //           debits: [{
+// //             categoryItemId: item2.id,
+// //             amount: 200
+// //           }],
+// //           userId: user!.uid
+// //         })
+// //       console.log(" -> check2")
+// //       {
+// //         const histoies = (await app!.firestore().collection("history")
+// //           .where("userId", "==", user!.uid)
+// //           .where("itemId", "==", item1.id)
+// //           .get()).docs.map(doc => doc.data())
+// //         expect(histoies.length).toBe(1)
+// //         expect(histoies[0].amount).toBe(200)
+// //       }
+// //       console.log(" -> check3")
+
+// //       {
+// //         const histoies = (await app!.firestore().collection("history")
+// //           .where("userId", "==", user!.uid)
+// //           .where("itemId", "==", item2.id)
+// //           .get()).docs.map(doc => doc.data())
+// //         expect(histoies.length).toBe(1)
+// //         expect(histoies[0].amount).toBe(-200)
+// //       }
+// //       console.log(" -> check4")
+// //   });
+
+// //   test("過去への挿入時に既存履歴が更新されること", async () => {
+// //       const item1 = categoryItems[0]
+// //       const item2 = categoryItems[1]
+// //       console.log(" -> check5")
+      
+// //       await app!.firestore().collection("journals")
+// //           .add({
+// //             accountAt: "2020/12/01",
+// //             credits: [{
+// //               categoryItemId: item1.id,
+// //               amount: 200
+// //             }],
+// //             debits: [{
+// //               categoryItemId: item2.id,
+// //               amount: 200
+// //             }],
+// //             userId: user!.uid
+// //           })
+// //       console.log(" -> check6")
+// //       await app!.firestore().collection("journals")
+// //           .add({
+// //             accountAt: "2020/11/20",
+// //             credits: [{
+// //               categoryItemId: item1.id,
+// //               amount: 300
+// //             }],
+// //             debits: [{
+// //               categoryItemId: item2.id,
+// //               amount: 300
+// //             }],
+// //             userId: user!.uid
+// //           })
+// //       // await sleep(1000)
+// //       console.log(" -> check7")
+
+// //       {
+// //         const histoies = (await app!.firestore().collection("history")
+// //           .where("userId", "==", user!.uid)
+// //           .where("itemId", "==", item1.id)
+// //           .get()).docs.map(doc => doc.data()).sort((a,b) => a.date > b.date ? 1 : -1)
+// //         expect(histoies.length).toBe(2)
+// //         expect(histoies[0].amount).toBe(300)
+// //         expect(histoies[0].date).toBe("2020/11/20")
+// //         expect(histoies[1].amount).toBe(500)
+// //         expect(histoies[1].date).toBe("2020/12/01")
+// //       }
+// //       console.log(" -> check8")
+// //   })
+// // });
+
