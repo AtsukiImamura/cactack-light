@@ -96,6 +96,7 @@ export default class HistoryUpdateManager extends UpdateManagerBase<DHistory>{
             for(const dtl of details){
                 const itemId = dtl.categoryItemId
                 if(!this.historyMap.has(itemId)){
+                    console.warn("WARN301001:item in journal detail not found in target histories.")
                     continue
                 }
                 const histroies = this.historyMap.get(itemId)!
@@ -119,6 +120,9 @@ export default class HistoryUpdateManager extends UpdateManagerBase<DHistory>{
         }
         updateDetails(journal.credits, acc)
         updateDetails(journal.debits, !acc)
+
+        console.log("history update manager: update  acc="+acc)
+        console.log(this.histUpdateDiffMap)
     }
 
     /**
@@ -126,7 +130,11 @@ export default class HistoryUpdateManager extends UpdateManagerBase<DHistory>{
      */
     protected async commit() {
         // 差分があったものに絞る（変動のない履歴を更新するのは無駄）
-        const updates = this.targets.filter(hist => this.histUpdateDiffMap.has(hist.id) && this.histUpdateDiffMap.get(hist.id)! !== 0)
+        const updates = this.targets.filter(hist => 
+            /* 差分のあったもの */ (this.histUpdateDiffMap.has(hist.id) && this.histUpdateDiffMap.get(hist.id)! !== 0) ||
+            /* 更新前分        */ (this.before && hist.date === this.before.accountAt) ||
+            /* 更新後分        */ (this.after && hist.date === this.after.accountAt)
+        )
         // console.log(`HISTORY commit   target=${this.targets.length}  updates=${updates.length}`)
         await Promise.all(updates.map(hist => container.resolve(HistoryFirestore).update(hist.id, hist)))
     }

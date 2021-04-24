@@ -19,11 +19,18 @@
         <div class="config">
           <div class="date-config">
             <div class="date from">
-              <DatePicker
+              <!-- <DatePicker
                 format="yyyy/MM/dd"
                 :value="date.toDate()"
                 @selected="selectDate"
-              ></DatePicker>
+              ></DatePicker> -->
+              <MonthPicker
+                  class=""
+                  :year="year"
+                  :month="month"
+                  @select="selectDate"
+                  :disabled="false"
+              ></MonthPicker>
             </div>
           </div>
         </div>
@@ -79,6 +86,7 @@ import { IBalanceItem } from "@/app/model/interface/IBalance";
 import * as BalanceService from "@/app/service/BalanceService"
 import UserCategory from "@/app/model/UserCategory";
 import AccountType from "@/app/model/AccountType";
+import MonthPicker from "@/app/view/common/MonthPicker.vue";
 
 @Component({
   components: {
@@ -86,6 +94,7 @@ import AccountType from "@/app/model/AccountType";
     DatePicker,
     BalanceSide,
     BalanceChart,
+    MonthPicker
   },
 })
 export default class BalanceView extends Vue {
@@ -95,8 +104,16 @@ export default class BalanceView extends Vue {
 
   public balanceItems: IBalanceItem[] = []
 
-  public selectDate(date: Date){
-    this.date = JournalDate.byDate(date)
+  public get month(): number {
+    return this.date.monthOfUser;
+  }
+
+  public get year(): number {
+    return this.date.yearOfUser;
+  }
+
+  public selectDate(date: IJournalDate){
+    this.date = date
     this.loadBalances()
   }
 
@@ -113,9 +130,9 @@ export default class BalanceView extends Vue {
 
   public get creditSide() {
     const items =  this.balanceItems.filter(b => b.item.type.isCredit)
-    // 履歴剰余金分挿入
+    // 利益剰余金分挿入
     items.push({
-      item: UserCategory.simple("履歴剰余金", AccountType.TYPE_NET_ASSET),
+      item: UserCategory.simple("利益剰余金", AccountType.TYPE_NET_ASSET),
       amount: this.debitSide.reduce((sum, item) => sum += item.amount, 0) - items.reduce((sum, item) => sum += item.amount ,0),
     })
     return items

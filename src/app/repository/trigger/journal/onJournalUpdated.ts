@@ -22,6 +22,7 @@ export default async function onJournalUpdated(before: DJournal, after: DJournal
             d.amount = 0
             return d;
         })
+        // console.log("journal is treated as invisible or deleted.")
     }
 
     

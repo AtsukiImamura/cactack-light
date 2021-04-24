@@ -7,11 +7,13 @@
               <li>screenX: {{ mouse.screenX }}</li>
               <li>screenY: {{ mouse.screenY }}</li>
               <li>clientX: {{ mouse.clientX }}</li>
-              <li>clientX: {{ mouse.clientY }}</li>
-              <li>x      : {{ mouse.x }}</li>
-              <li>y      : {{ mouse.y }}</li>
-              <li>hasTarget: {{ hasTarget }}</li>
+              <li>clientY: {{ mouse.clientY }}</li>
+              <li>stoneTop      : {{ mouse.stone.top }}</li>
+              <li>window.scrollY      : {{ mouse.window.scrollY }}</li>
+              
           </ul>
+      </div>
+      <div class="h">
       </div> -->
       <div class="main"> 
         <div class="left">
@@ -21,11 +23,12 @@
                 </div>
             </div>
         </div>
-        <div class="center">
-            <div class="stones" ref="stones">
+        <div class="center" ref="center">
+            {{ (centerWidth = calcCenterDispWidth()) && null}}
+            <div class="stones" ref="stones" :style="{width: centerWidth < 0 ? '100%' : `${centerWidth}px`}">
                 <div class="block" v-for="(val, index) in graphValues" :key="index"
                     :style="{
-                        left: `${5 + 100/graphValues.length*index}%`,
+                        left: centerWidth < 0 ? `${5 + 100/graphValues.length*index}%` : `${20 + centerWidth/graphValues.length*index}px`,
                     }">
                     <div class="line"></div>
                     <div 
@@ -43,9 +46,8 @@
                             <li>offsetTop: {{ val.offsetTop}}</li>
                             <li>percentile: {{ Math.floor(val.percentile * 1000) / 1000 }}</li>
                         </ul>
-                        <ul class="stone-detail">
-                            <!-- <li>{{ val.year }}/{{ val.month }}</li> -->
-                            <li>￥{{ val.amount }}</li>
+                        <ul class="stone-detail" 
+                            :amount="`￥${val.amount}`">
                         </ul>
                     </div>
                 </div>
@@ -53,7 +55,7 @@
             <div class="bottom-ticker">
                 <div class="ticker" v-for="(val, index) in graphValues" :key="index"
                     :style="{
-                        left: `${5 + 99/graphValues.length*index}%`,
+                        left: centerWidth < 0 ? `${5 + 100/graphValues.length*index}%` : `${20 + centerWidth/graphValues.length*index}px`,
                     }">
                     <span>{{ val.year }}/{{ val.month }}</span>
                 </div>
@@ -118,6 +120,18 @@ export default class DeprcAdjuster extends Vue {
         return ticks
     }
 
+    public calcCenterDispWidth(): number {
+        const centerElem = this.$refs.center as HTMLDivElement
+        if (!centerElem) {
+            return -1
+        }
+        const centerWidth = centerElem.clientWidth
+        if (this.graphValues.length * 120 < centerWidth) {
+            return -1
+        }
+        return this.graphValues.length * 100
+    }
+
     @Emit()
     public change() {
         return this.journals
@@ -163,7 +177,19 @@ export default class DeprcAdjuster extends Vue {
         clientX: 0,
         clientY: 0,
         x:0,
-        y:0
+        y:0,
+        stone: {
+            clientTop: 0,
+            scrollTop: 0,
+            scrollLeft: 0,
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0
+        },
+        window: {
+            scrollY: 0
+        }
     }
 
     public get hasTarget(): boolean {
@@ -180,6 +206,7 @@ export default class DeprcAdjuster extends Vue {
     @Watch("config")
     public onConfigChanged() {
         this.init()
+        this.change()
     }
 
     private init() {
@@ -194,18 +221,33 @@ export default class DeprcAdjuster extends Vue {
                 percentile: val.amount / maxValue
             }
         })
+
+        this.targetStone = {}
+        // this.mouse.stone.clientTop = this.stoneWrapperElem.clientTop
+        // this.mouse.stone.scrollTop = this.stoneWrapperElem.scrollTop
+        // this.mouse.stone.scrollLeft = this.stoneWrapperElem.scrollLeft
+        // this.mouse.stone.left = this.stoneWrapperElem.getBoundingClientRect().left
+        // this.mouse.stone.right = this.stoneWrapperElem.getBoundingClientRect().right
+        // this.mouse.stone.top = this.stoneWrapperElem.getBoundingClientRect().top
+        // this.mouse.stone.bottom = this.stoneWrapperElem.getBoundingClientRect().bottom
+
+        // console.log(this.mouse)
     }
 
     // private get maxAmount(): number {
     //     return this.graphValues.reduce((max, val) => max > val.amount ? max : val.amount, 0)
     // }
 
-    private get stoneElem(): HTMLDivElement {
+    private get stoneWrapperElem(): HTMLDivElement {
         return (this.$refs.stones as HTMLDivElement)
     }
 
+    public get stoneWrapperTop(): number {
+        return this.stoneWrapperElem.getBoundingClientRect().top
+    }
+
     private get totalHeight(): number {
-        return this.stoneElem.clientHeight
+        return this.stoneWrapperElem.clientHeight
     }
 
     public get firstAmount(): number {
@@ -235,13 +277,18 @@ export default class DeprcAdjuster extends Vue {
         this.mouse.clientY = e.clientY
         this.mouse.x = e.x
         this.mouse.y = e.y
+        this.mouse.stone.top = this.stoneWrapperTop
+        this.mouse.window.scrollY = window.scrollY
+
+
 
         if (val.index === 0             )   return // 期初価額は動かさない
         if (!this.hasTarget             )   return
         if (e.target != this.targetStone)   return
 
         val.percentile = 1 - (() => {
-            const percentile = (e.clientY - this.stoneElem.offsetTop) / this.totalHeight
+            const percentile = (e.clientY + window.scrollY - this.stoneWrapperTop) / this.totalHeight
+            // console.log(`this.totalHeight=${this.totalHeight} this.stoneElem.offsetTop=${this.stoneWrapperElem.offsetTop} stone.clientTop=${this.stoneWrapperElem.clientTop} e.clientY=${e.clientY}`)
             if(percentile > 1) return 1
             if(percentile < 0) return 0
             return percentile
@@ -276,6 +323,19 @@ export default class DeprcAdjuster extends Vue {
         height: 100%;
         width: calc(100% - 10px);
         background: #ffffff;
+        // overflow-y: hidden;
+        position: relative;
+        // スクロールバー隠し
+        &:after {
+            content: "";
+            background: #ffffff;
+            width: 100%;
+            height: 17px;
+            position: absolute;
+
+            bottom: 20px;
+            left: 0px;
+        }
         .left {
             height: 80%;
             width: 120px;
@@ -283,6 +343,7 @@ export default class DeprcAdjuster extends Vue {
                 position: relative;
                 height: 100%;
                 background: #ffffff;
+                margin-top: 5px;
                 .tick {
                     position: absolute;
                     right: 0px;
@@ -299,17 +360,21 @@ export default class DeprcAdjuster extends Vue {
             }
         }
         .center {
-            height: 80%;
+            height: 100%;
             width: calc(100% - 120px);
+            overflow-x: scroll;
+            overflow-y: hidden;
             .stones {
                 // border: 1px solid #0079ca;
                 background: #ffffff;
                 position: relative;
-                height: 100%;
-                width: 100%;
+                height: 80%;
+                margin-top: 20px;
+                // width: 100%;
                 .block {
                     position: absolute;
                     height: 100%;
+                    // min-width: 100%;
                     border-left: 1px solid #808080;
                     .stone {
                         position: absolute;
@@ -338,6 +403,12 @@ export default class DeprcAdjuster extends Vue {
                             width: 140px;
                             list-style: none;
                             font-size: 0.65rem;
+                            &:after {
+                                content: attr(amount);
+                                position: absolute;
+                                bottom: -5px;
+                                left: 10px;
+                            }
                         }
                         &:after {
                             content: "";

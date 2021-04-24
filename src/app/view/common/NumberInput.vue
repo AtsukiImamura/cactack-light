@@ -2,7 +2,7 @@
   <div class="number-input">
     <input
       type="text"
-      :value="value > 0 ? value : ''"
+      :value="value"
       @input="onInput"
       @blur="onBlur"
       :placeholder="placeHolder"
@@ -26,9 +26,13 @@ export default class NumberInput extends Vue {
 
   public onInput(e: Event): void {
     const value = (e.srcElement as HTMLInputElement).value;
-    if (isNaN(Number(value))) {
+    
+    if (!value.match(/-?([1-9][0-9]*)?/)) {
       this.message = "数値を入力してください";
       return;
+    }
+    if(value === "-"){
+      return
     }
     this.message = "";
     this.noticeInput(Number(value));

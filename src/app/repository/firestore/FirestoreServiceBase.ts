@@ -56,6 +56,9 @@ import { container } from "tsyringe";
     }
 
     public async add(value: T){
+      if(!value.userId){
+        value.userId = container.resolve(UserAuthService).userId
+      }
       return (await this.collection.add(value)).id
     }
 }

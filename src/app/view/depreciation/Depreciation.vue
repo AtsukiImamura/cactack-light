@@ -28,7 +28,7 @@
                     </div>
                 </div>
             </div>
-            <div class="b">"
+            <div class="b">
                 <div class="adjuster">
                     <DeprcAdjuster v-if="adjusterConfig.values.length > 0" :config="adjusterConfig" @change="onDepreciationJournalsChanged"></DeprcAdjuster>
                 </div>
